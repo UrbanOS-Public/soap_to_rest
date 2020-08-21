@@ -5,6 +5,9 @@ from spyne import Application, rpc, ServiceBase, \
 from spyne import Iterable
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
+from wsgiref.simple_server import make_server
+
+from threading import Thread
 
 class Person(ComplexModel):
   name = String
@@ -37,11 +40,14 @@ application = Application([HelloWorldService],
     in_protocol=Soap11(validator='lxml'),
     out_protocol=Soap11()
 )
+
+
+def create_fake_server(port=8000, daemon=True):
+  wsgi_app = WsgiApplication(application)
+  server = make_server('0.0.0.0', port, wsgi_app)
+  Thread(target=server.serve_forever, daemon=daemon).start()
+  return f'http://localhost:{str(port)}?WSDL'
+  
+
 if __name__ == '__main__':
-    # You can use any Wsgi server. Here, we chose
-    # Python's built-in wsgi server but you're not
-    # supposed to use it in production.
-    from wsgiref.simple_server import make_server
-    wsgi_app = WsgiApplication(application)
-    server = make_server('0.0.0.0', 8000, wsgi_app)
-    server.serve_forever()
+  create_fake_server(daemon=False)
