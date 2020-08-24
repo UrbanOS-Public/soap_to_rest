@@ -20,12 +20,18 @@ class Person(ComplexModel):
 class Dog(ComplexModel):
   name = String
   address = String
+  toys = Iterable(String)
 
-  def __init__(self, name, address):
+  def __init__(self, name, address, toys = []):
     self.name = name
     self.address = address
+    self.toys = toys
 
 class HelloWorldService(ServiceBase):
+    @rpc(Unicode, _returns=Unicode)
+    def say_my_name(ctx, name):
+        return name
+
     @rpc(Unicode, Integer, _returns=Iterable(Unicode))
     def say_hello(ctx, name, times):
         for i in range(times):
@@ -34,6 +40,10 @@ class HelloWorldService(ServiceBase):
     @rpc(Person, _returns=Dog)
     def person_to_dog(ctx, person):
       return Dog(person.name, person.address)
+    
+    @rpc(_returns=Iterable(Dog))
+    def good_dogs(ctx):
+      return [Dog('Pi', '123 Bork Street', ['Food', 'Socks']), Dog('Cricket', '123 Bork Street', ['Llama'])]
 
 application = Application([HelloWorldService],
     tns='spyne.examples.hello',
