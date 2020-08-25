@@ -31,11 +31,13 @@ class Neighborhood(ComplexModel):
   name = String
   people = Iterable(Person)
   dogs = Iterable(Dog)
+  phone_numbers = Iterable(String)
 
-  def __init__(self, name, people = [], dogs = []):
+  def __init__(self, name, people = [], dogs = [], phone_numbers = []):
     self.name = name
     self.people = people
     self.dogs = dogs
+    self.phone_numbers = phone_numbers
 
 class HelloWorldService(ServiceBase):
     @rpc(Unicode, _returns=Unicode)
@@ -58,8 +60,8 @@ class HelloWorldService(ServiceBase):
     @rpc(_returns=Iterable(Neighborhood))
     def neighborhoods(_ctx):
       return [
-        Neighborhood('Meadows', [Dog('Pi', '123 Bork Street', ['Food', 'Kitchen Towel'])], [Person('Joe', '123 American Way')]),
-        Neighborhood('Montana', [Dog('Max', '123 Dump Road', ['Beggin Strips'])], [Person('Jim', '123 Western Way')])
+        Neighborhood('Meadows', [Dog('Pi', '123 Bork Street', ['Food', 'Kitchen Towel'])], [Person('Joe', '123 American Way')], ["555-123-4567"]),
+        Neighborhood('Montana', [Dog('Max', '123 Dump Road', ['Beggin Strips'])], [Person('Jim', '123 Western Way')], ["555-890-1234"])
       ]
 
 application = Application([HelloWorldService],
