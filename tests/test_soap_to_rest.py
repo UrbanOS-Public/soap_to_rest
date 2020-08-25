@@ -99,3 +99,17 @@ async def test_multiple_objects(fake_wsdl_server_url):
             'toys': ['Llama']
         }
     ] == data
+
+async def test_nested_objects(fake_wsdl_server_url):
+    client = app.test_client()
+
+    data = {
+        'url': fake_wsdl_server_url,
+        'action': 'neighborhoods',
+        'params': {}
+    }
+
+    result = await client.post('/api/v1/wsdl', json=data)
+    data = await result.get_json()
+
+    assert data != None

@@ -13,9 +13,9 @@ class Person(ComplexModel):
   name = String
   address = String
 
-  def __init__(self):
-    self.name = 'person'
-    self.address = 'personville'
+  def __init__(self, name='person', address='personville'):
+    self.name = name
+    self.address = address
 
 class Dog(ComplexModel):
   name = String
@@ -26,6 +26,16 @@ class Dog(ComplexModel):
     self.name = name
     self.address = address
     self.toys = toys
+
+class Neighborhood(ComplexModel):
+  name = String
+  people = Iterable(Person)
+  dogs = Iterable(Dog)
+
+  def __init__(self, name, people = [], dogs = []):
+    self.name = name
+    self.people = people
+    self.dogs = dogs
 
 class HelloWorldService(ServiceBase):
     @rpc(Unicode, _returns=Unicode)
@@ -42,8 +52,15 @@ class HelloWorldService(ServiceBase):
       return Dog(person.name, person.address)
     
     @rpc(_returns=Iterable(Dog))
-    def good_dogs(ctx):
+    def good_dogs(_ctx):
       return [Dog('Pi', '123 Bork Street', ['Food', 'Socks']), Dog('Cricket', '123 Bork Street', ['Llama'])]
+
+    @rpc(_returns=Iterable(Neighborhood))
+    def neighborhoods(_ctx):
+      return [
+        Neighborhood('Meadows', [Dog('Pi', '123 Bork Street', ['Food', 'Kitchen Towel'])], [Person('Joe', '123 American Way')]),
+        Neighborhood('Montana', [Dog('Max', '123 Dump Road', ['Beggin Strips'])], [Person('Jim', '123 Western Way')])
+      ]
 
 application = Application([HelloWorldService],
     tns='spyne.examples.hello',
