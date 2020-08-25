@@ -17,25 +17,25 @@ from suds.sudsobject import asdict
 
 
 def recursive_asdict(d):
-  class_name = d.__class__.__name__
-  logging.warning(class_name)
-  if 'Array' not in class_name:
-    logging.warning('Thingy')
-    return dict(list(starmap(convert_entry, asdict(d).items())))
+  if _is_array(d):
+    array = _get_array_from_suds_object(d)
+    return list(map(convert_value, array))
   else:
-    thing = d[d.__keylist__[0]]
-    return list(map(convert_value, thing))
+    key_value_entries = asdict(d).items()
+    return dict(list(starmap(convert_entry, key_value_entries)))
 
+def _get_class_name(sudso):
+  return sudso.__class__.__name__
+
+def _get_array_from_suds_object(sudso):
+  return sudso[sudso.__keylist__[0]]
+
+def _is_array(object):
+  return 'Array' in _get_class_name(object)
 
 def convert_entry(k, v):
-  logging.warning("Converting entry")
   if hasattr(v, '__keylist__'):
-    class_name = v.__class__.__name__
-    if 'Array' in class_name:
-      thing = v[v.__keylist__[0]]
-      return (k, list(map(convert_value, thing)))
-    else:
-      return (k, recursive_asdict(v))
+    return (k, recursive_asdict(v))
   elif isinstance(v, list): 
     return list(map(convert_value, v))
   else:
