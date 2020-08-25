@@ -19,6 +19,7 @@ def test_single_regular_object():
 
   assert regular_object == suds_to_dict(regular_object)
 
+
 def test_single_suds_object():
   suds_object = SudsFactory.object(dict={
     'name': 'John Doe',
@@ -26,6 +27,7 @@ def test_single_suds_object():
   })
 
   assert {'name': 'John Doe', 'address': '123 Jump Street'} == suds_to_dict(suds_object)
+
 
 def test_multiple_regular_objects():
   regular_objects = [
@@ -40,6 +42,7 @@ def test_multiple_regular_objects():
   ]
 
   assert regular_objects == suds_to_dict(regular_objects)
+
 
 def test_multiple_suds_objects():
   suds_objects = SudsFactory.object(dict={
@@ -60,6 +63,7 @@ def test_multiple_suds_objects():
     {'name': 'Jammy Doe', 'address': '456 Jump Street'}
   ] == suds_to_dict(suds_objects)
 
+
 def test_nested_suds_objects():
   suds_objects = SudsFactory.object(dict={
     'person': [
@@ -68,7 +72,7 @@ def test_nested_suds_objects():
         'address': '123 Jump Street',
         'pets': SudsFactory.object(dict={
           'pet': [
-            {'name': 'Scrappy'}
+            SudsFactory.object(dict={'name': 'Scrappy'})
           ]
         })
       }),
@@ -77,12 +81,13 @@ def test_nested_suds_objects():
         'address': '456 Jump Street',
         'pets': SudsFactory.object(dict={
           'pet': [
-            {'name': 'Bella'}
+            SudsFactory.object(dict={'name': 'Bella'})
           ]
         })
       })
     ]
   })
+
 
 def test_nested_mixed_objects():
   suds_objects = SudsFactory.object(dict={
@@ -91,14 +96,14 @@ def test_nested_mixed_objects():
         'name': 'John Doe',
         'address': '123 Jump Street',
         'pets': [
-          {'name': 'Scrappy'}
+          SudsFactory.object(dict={'name': 'Scrappy'})
         ]
       }),
       SudsFactory.object(dict={
         'name': 'Jammy Doe',
         'address': '456 Jump Street',
         'pets': [
-          {'name': 'Bella'}
+          SudsFactory.object(dict={'name': 'Bella'})
         ]
       })
     ]
