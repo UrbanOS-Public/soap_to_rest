@@ -17,21 +17,33 @@ from suds.sudsobject import asdict
 
 
 def recursive_asdict(d):
-  converted = list(starmap(convert_entry, asdict(d).items()))
-  logging.warning(converted)
-  return dict(converted)
+  class_name = d.__class__.__name__
+  logging.warning(class_name)
+  if 'Array' not in class_name:
+    logging.warning('Thingy')
+    return dict(list(starmap(convert_entry, asdict(d).items())))
+  else:
+    thing = d[d.__keylist__[0]]
+    return list(map(convert_value, thing))
 
 
 def convert_entry(k, v):
+  logging.warning("Converting entry")
   if hasattr(v, '__keylist__'):
-    return (k, recursive_asdict(v))
-  elif isinstance(v, list):  
+    class_name = v.__class__.__name__
+    if 'Array' in class_name:
+      thing = v[v.__keylist__[0]]
+      return (k, list(map(convert_value, thing)))
+    else:
+      return (k, recursive_asdict(v))
+  elif isinstance(v, list): 
     return list(map(convert_value, v))
   else:
     return (k, v)
 
     
 def convert_value(v):
+  logging.warning(f"Converting Value: {v}")
   if hasattr(v, '__keylist__'):
       return recursive_asdict(v)
   else:
@@ -43,6 +55,7 @@ def suds_to_json(data):
       data = recursive_asdict(data)
     else:
       data = [data]
+    logging.warning(data)
     return jsonify(data)
 
 

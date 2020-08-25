@@ -9,6 +9,7 @@ python = "^3.8"
 suds-community = "^0.8.4"
 quart = "^0.13.0"
 spyne = "^2.13.15"
+lxml = "^4.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
