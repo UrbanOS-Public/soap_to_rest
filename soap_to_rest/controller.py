@@ -1,13 +1,20 @@
-from quart import Quart
-from quart import jsonify
-from quart import request
+from quart import Quart, Response, jsonify, request
+from schema import Schema, And, Use, Optional, SchemaError
+from soap_to_rest.wsdl_service import invoke_action
+from soap_to_rest.suds_converter import to_serializable
 
-from suds.client import Client
-from suds.wsse import *
-import json
-
-from itertools import starmap
-from soap_to_rest.suds_converter import suds_to_serializable
+WSDL_PARAMS_SCHEMA = Schema(
+  {
+    'url': str,
+    'action': str,
+    Optional('params'): Use(dict, error="'params' must be an object"),
+    Optional('auth'): Schema({
+      'username': str,
+      'password': str
+    })
+  },
+  name="WSDL Parameters"
+)
 
 import logging
 logging.basicConfig(level=logging.WARNING)
@@ -17,23 +24,30 @@ app = Quart(__name__)
 
 @app.route('/api/v1/wsdl', methods=['POST'])
 async def wsdl():
-  request_body = await request.json
+  try:
+    (url, action, params, auth) = await _validate_wsdl_params(request)
+  except SchemaError as se:
+    message = se.code
+    logging.error(f"Failed to validate WSDL request parameters: {message}")
+    return Response(message, status=400, mimetype="text/plain")
+
+  result = invoke_action(url, action, params, auth)
+  serializable_result = to_serializable(result)
+
+  return jsonify(serializable_result)
+
+
+async def _validate_wsdl_params(wsdl_request):
+  request_body = await wsdl_request.json
+
+  WSDL_PARAMS_SCHEMA.validate(request_body)
+
   url = request_body.get('url')
   action = request_body.get('action')
   params = request_body.get('params')
   auth = request_body.get('auth')
 
-  if auth:
-    security = Security()
-    token = UsernameToken(auth['username'], auth['password'])
-    security.tokens.append(token)
-    client = Client(url, wsse=security)
-  else:
-    client = Client(url)
-
-  results = client.service.__getattr__(action)(**params)
-
-  return jsonify(suds_to_serializable(results))
+  return (url, action, params, auth)
 
 
 if __name__ == '__main__':

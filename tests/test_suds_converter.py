@@ -1,14 +1,14 @@
 import pytest
 
-from soap_to_rest.suds_converter import suds_to_serializable
+from soap_to_rest.suds_converter import to_serializable
 from suds.sudsobject import Factory as SudsFactory
 
 def test_single_primordial_value():
-  assert [5] == suds_to_serializable(5)
+  assert [5] == to_serializable(5)
 
 
 def test_multiple_primordial_values():
-  assert ['Hello', 'World'] == suds_to_serializable(['Hello', 'World'])
+  assert ['Hello', 'World'] == to_serializable(['Hello', 'World'])
 
 
 def test_single_regular_object():
@@ -17,7 +17,7 @@ def test_single_regular_object():
     '123 Front Street'
   )
 
-  assert regular_object == suds_to_serializable(regular_object)
+  assert regular_object == to_serializable(regular_object)
 
 
 def test_single_suds_object():
@@ -26,7 +26,7 @@ def test_single_suds_object():
     'address': '123 Jump Street'
   })
 
-  assert {'name': 'John Doe', 'address': '123 Jump Street'} == suds_to_serializable(suds_object)
+  assert {'name': 'John Doe', 'address': '123 Jump Street'} == to_serializable(suds_object)
 
 
 def test_multiple_regular_objects():
@@ -41,7 +41,7 @@ def test_multiple_regular_objects():
     )
   ]
 
-  assert regular_objects == suds_to_serializable(regular_objects)
+  assert regular_objects == to_serializable(regular_objects)
 
 
 def test_multiple_suds_objects():
@@ -61,7 +61,7 @@ def test_multiple_suds_objects():
   assert [
     {'name': 'John Doe', 'address': '123 Jump Street'},
     {'name': 'Jammy Doe', 'address': '456 Jump Street'}
-  ] == suds_to_serializable(suds_objects)
+  ] == to_serializable(suds_objects)
 
 
 def test_nested_suds_objects():
@@ -112,7 +112,7 @@ def test_nested_mixed_objects():
   assert [
     {'name': 'John Doe', 'address': '123 Jump Street', 'pets': [{'name': 'Scrappy'}]},
     {'name': 'Jammy Doe', 'address': '456 Jump Street', 'pets': [{'name': 'Bella'}]}
-  ] == suds_to_serializable(suds_objects)
+  ] == to_serializable(suds_objects)
 
 class RegularObject():
   def __init__(self, name, address):

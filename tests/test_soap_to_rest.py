@@ -1,5 +1,6 @@
 import pytest
 import json
+import re
 import logging
 logging.basicConfig(level=logging.WARNING)
 
@@ -113,3 +114,21 @@ async def test_nested_objects(fake_wsdl_server_url):
     data = await result.get_json()
 
     assert data != None
+
+params_to_test = [
+    ({'url': 'http://example.com?WSDL'}, 400, r"missing.*action"),
+    ({'action': 'do-it'}, 400, r"missing.*url"),
+    ({}, 400, r"missing.*(action|url)+.*(action|url)+"),
+    ({'url': 'http://example.com?WSDL', 'action': 'do-it', 'params': 'WRONGO'}, 400, r"params.*object"),
+    ({'url': 'http://example.com?WSDL', 'action': 'do-it', 'auth': {}}, 400, r"missing.*(username|password)+.*(username|password)+"),
+]
+@pytest.mark.parametrize("params,status,message", params_to_test)
+async def test_parameters(params, status, message):
+    client = app.test_client()
+
+    result = await client.post('/api/v1/wsdl', json=params)
+
+    assert status == result.status_code
+    raw_body = await result.get_data()
+    body = raw_body.decode()
+    assert re.search(message, body, flags=re.IGNORECASE)

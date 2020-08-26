@@ -2,7 +2,7 @@ from itertools import starmap
 from suds.sudsobject import asdict as suds_as_dict
 
 
-def suds_to_serializable(value):
+def to_serializable(value):
   """Recursively convert a value returned by a suds client into a serializable format (array, object, primordial value, etc.)"""
   if _is_primordial(value):
     return _list_wrap(value)
