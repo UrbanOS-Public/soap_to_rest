@@ -2,14 +2,14 @@ from itertools import starmap
 from suds.sudsobject import asdict as suds_as_dict
 
 
-def suds_to_dict(value):
+def suds_to_serializable(value):
   if _is_primordial(value):
     return _list_wrap(value)
 
-  return _convert_to_dict(value)
+  return _convert_to_serializable(value)
 
 
-def _convert_to_dict(value):
+def _convert_to_serializable(value):
   if _is_list(value):
     return _convert_values(value)
 
@@ -21,7 +21,7 @@ def _convert_to_dict(value):
   if _is_suds_array(suds_dict):
     return _convert_suds_array(suds_dict)
 
-  return _convert_dict(suds_dict)
+  return _convert_suds_object(suds_dict)
 
 
 def _convert_suds_array(suds_dict):
@@ -29,7 +29,7 @@ def _convert_suds_array(suds_dict):
   return _convert_values(array)
 
 
-def _convert_dict(dictionary):
+def _convert_suds_object(dictionary):
   return _convert_entries(dictionary.items())
 
 
@@ -38,11 +38,11 @@ def _convert_entries(entries):
 
 
 def _convert_entry(key, value):
-  return (key, _convert_to_dict(value))
+  return (key, _convert_to_serializable(value))
 
 
 def _convert_values(values):
-  return list(map(_convert_to_dict, values))
+  return list(map(_convert_to_serializable, values))
 
 
 def _is_primordial(value):

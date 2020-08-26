@@ -7,7 +7,7 @@ from suds.wsse import *
 import json
 
 from itertools import starmap
-from soap_to_rest.suds_converter import suds_to_dict
+from soap_to_rest.suds_converter import suds_to_serializable
 
 import logging
 logging.basicConfig(level=logging.WARNING)
@@ -33,7 +33,7 @@ async def wsdl():
 
   results = client.service.__getattr__(action)(**params)
 
-  return jsonify(suds_to_dict(results))
+  return jsonify(suds_to_serializable(results))
 
 
 if __name__ == '__main__':
