@@ -1,20 +1,23 @@
+"""Module for working with a wsdl and resulting web service"""
 import logging
 from xml.sax import SAXParseException
 
 from suds import MethodNotFound, WebFault
 from suds.client import Client
 from suds.transport import TransportError
-from suds.wsse import *
+from suds.wsse import Security, UsernameToken
 
 
 class WsdlError(Exception):
     """Simple wrapper for any errors occurring during web service invocation"""
 
     def __init__(self, wsdl_error):
+        super().__init__()
         self.wrapped = wsdl_error
 
 
 def invoke_action(url, action, params, auth=None):
+    """Invokes an action contained in the provided WSDL url using provided parameters"""
     try:
         if auth:
             security = Security()
@@ -30,20 +33,22 @@ def invoke_action(url, action, params, auth=None):
         _raise_wsdl_error(
             f"Error accessing WSDL at {url}, got HTTP status code {tex.httpcode}"
         )
-    except SAXParseException as sax:
+    except SAXParseException:
         _raise_wsdl_error(
             f"Error parsing the WSDL at {url}, please contact WSDL provider"
         )
-    except MethodNotFound as mnf:
+    except MethodNotFound:
         _raise_wsdl_error(f"Action {action} not found")
-    except WebFault as wf:
-        if wf.fault.faultcode == "InvalidSecurity":
+    except WebFault as web_fault:
+        if web_fault.fault.faultcode == "InvalidSecurity":
             _raise_wsdl_error(
-                f"Authentication error when invoking action {action}, {wf.fault.faultstring}"
+                f"Authentication error when invoking action {action}, {web_fault.fault.faultstring}"
             )
-        _raise_wsdl_error(f"Error invoking action {action}, {wf.fault.faultstring}")
-    except TypeError as ter:
-        _raise_wsdl_error(f"Error invoking action {action}, {ter}")
+        _raise_wsdl_error(
+            f"Error invoking action {action}, {web_fault.fault.faultstring}"
+        )
+    except TypeError as type_error:
+        _raise_wsdl_error(f"Error invoking action {action}, {type_error}")
     except Exception as ex:
         logging.error(
             f"Wsdl error occurred that we won't send to users: {type(ex)} {ex}"

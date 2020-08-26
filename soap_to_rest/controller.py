@@ -1,5 +1,8 @@
+"""The main API controller for the soap_to_rest service"""
+import logging
+
 from quart import Quart, Response, jsonify, request
-from schema import And, Optional, Regex, Schema, SchemaError, Use
+from schema import Optional, Regex, Schema, SchemaError, Use
 
 from soap_to_rest.suds_converter import to_serializable
 from soap_to_rest.wsdl_service import WsdlError, invoke_action
@@ -17,7 +20,6 @@ WSDL_PARAMS_SCHEMA = Schema(
     name="WSDL Parameters",
 )
 
-import logging
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -26,16 +28,20 @@ app = Quart(__name__)
 
 @app.route("/api/v1/wsdl", methods=["POST"])
 async def wsdl():
+    """
+    Service endpoint for invoking an action on a
+    web service defined by a WSDL
+    """
     try:
         (url, action, params, auth) = await _validate_wsdl_params(request)
         result = invoke_action(url, action, params, auth)
         serializable_result = to_serializable(result)
 
         return jsonify(serializable_result)
-    except SchemaError as se:
-        return _schema_error(se)
-    except WsdlError as we:
-        return _wsdl_error(we)
+    except SchemaError as schema_error:
+        return _schema_error(schema_error)
+    except WsdlError as wsdl_error:
+        return _wsdl_error(wsdl_error)
 
 
 async def _validate_wsdl_params(wsdl_request):

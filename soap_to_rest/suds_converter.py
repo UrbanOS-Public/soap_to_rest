@@ -1,10 +1,17 @@
+"""
+Converter that can take (usually) a suds object
+and turn it into a serializable dict, array, etc.
+"""
 from itertools import starmap
 
 from suds.sudsobject import asdict as suds_as_dict
 
 
 def to_serializable(value):
-    """Recursively convert a value returned by a suds client into a serializable format (array, object, primordial value, etc.)"""
+    """
+    Recursively convert a value returned by a suds client
+    into a serializable format (array, object, primordial value, etc.)
+    """
     if _is_primordial(value):
         return _list_wrap(value)
 
