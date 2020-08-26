@@ -2,12 +2,15 @@ import pytest
 import json
 import re
 import logging
+from mockito import any
 logging.basicConfig(level=logging.WARNING)
 
 from soap_to_rest import __version__
 from tests.fake_wsdl_server import create_fake_server
 
+import soap_to_rest.controller
 from soap_to_rest.controller import app
+from soap_to_rest.wsdl_service import WsdlError
 
 pytestmark = pytest.mark.asyncio
 
@@ -132,3 +135,22 @@ async def test_parameters(params, status, message):
     raw_body = await result.get_data()
     body = raw_body.decode()
     assert re.search(message, body, flags=re.IGNORECASE)
+
+
+async def test_wsdl_errors(when, fake_wsdl_server_url):
+    client = app.test_client()
+
+    when(soap_to_rest.controller).invoke_action(any(str), any(str), any(dict), None).thenRaise(WsdlError(Exception('baddies')))
+    data = {
+        'url': fake_wsdl_server_url,
+        'action': 'neighborhoods',
+        'params': {}
+    }
+    result = await client.post('/api/v1/wsdl', json=data)
+
+    assert 400 == result.status_code
+    raw_body = await result.get_data()
+    body = raw_body.decode()
+    assert re.search(r"failed.*wsdl", body, flags=re.IGNORECASE)
+    
+# TODO - conversion errors
