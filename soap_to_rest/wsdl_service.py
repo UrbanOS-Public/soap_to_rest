@@ -27,7 +27,7 @@ def invoke_action(url, action, params, auth=None):
         else:
             client = Client(url)
 
-        return client.service.__getattr__(action)(**params)
+        return getattr(client.service, action)(**params)
 
     except TransportError as tex:
         _raise_wsdl_error(

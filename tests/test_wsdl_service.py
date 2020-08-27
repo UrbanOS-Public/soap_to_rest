@@ -1,4 +1,3 @@
-# TODO - UNIT test the auth part with mocks as spyne doesn't do WSSE easily
 import re
 from xml.sax import SAXParseException
 from xml.sax.xmlreader import Locator

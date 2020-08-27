@@ -3,7 +3,7 @@ import logging
 import re
 
 import pytest
-from mockito import any
+from mockito import any, mock
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -136,4 +136,15 @@ async def test_wsdl_errors(when, fake_wsdl_server_url):
     assert re.search(r"failed.*wsdl", body, flags=re.IGNORECASE | re.MULTILINE)
 
 
-# TODO - conversion errors
+async def test_serialization_errors(when, fake_wsdl_server_url):
+    client = app.test_client()
+
+    when(soap_to_rest.controller).to_serializable(any).thenReturn(dict)
+
+    data = {"url": fake_wsdl_server_url, "action": "neighborhoods", "params": {}}
+    result = await client.post("/api/v1/wsdl", json=data)
+
+    assert 500 == result.status_code
+    raw_body = await result.get_data()
+    body = raw_body.decode()
+    assert re.search(r"failed.*serialize", body, flags=re.IGNORECASE | re.MULTILINE)

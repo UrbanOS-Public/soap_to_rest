@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.WARNING)
 app = Quart(__name__)
 
 
-@app.route("/api/v1/wsdl", methods=["POST"])
+@app.route("/api/v1/wsdl", methods=["POST", "GET"])
 async def wsdl():
     """
     Service endpoint for invoking an action on a
@@ -42,6 +42,8 @@ async def wsdl():
         return _schema_error(schema_error)
     except WsdlError as wsdl_error:
         return _wsdl_error(wsdl_error)
+    except TypeError as type_error:
+        return _serialization_error(type_error)
 
 
 async def _validate_wsdl_params(wsdl_request):
@@ -67,6 +69,12 @@ def _wsdl_error(error):
     message = f"Failed to invoke WSDL: {error.wrapped}"
     logging.error(message)
     return Response(message, status=400, mimetype="text/plain")
+
+
+def _serialization_error(error):
+    message = f"Failed to serialize SOAP response: {error}"
+    logging.error(message)
+    return Response(message, status=500, mimetype="text/plain")
 
 
 if __name__ == "__main__":
