@@ -58,10 +58,10 @@ error_test_ids = [
 
 
 @pytest.mark.parametrize("error,message", errors_to_test, ids=error_test_ids)
-def test_parameters(error, message, when):
+def test_errors(error, message, when):
     when(wsdl_service).Client(any).thenRaise(error)
 
     with pytest.raises(wsdl_service.WsdlError) as we:
         wsdl_service.invoke_action("a url", "whonko", {})
 
-    assert re.search(message, str(we), re.IGNORECASE)
+    assert re.search(message, str(we.value.wrapped), re.IGNORECASE)
