@@ -14,6 +14,9 @@ RUN pip3 install 'poetry==1.0.9'
 
 ADD pyproject.toml poetry.lock /
 
+RUN poetry export -f requirements.txt -o requirements.txt \
+    && pip3 install --requirement requirements.txt
+
 COPY soap_to_rest /soap_to_rest
 RUN chmod +x soap_to_rest/start.sh
 
@@ -29,3 +32,5 @@ FROM base-python as production
 COPY nginx.conf /etc/nginx
 
 WORKDIR /soap_to_rest
+
+CMD ./start.sh
