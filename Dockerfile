@@ -15,7 +15,7 @@ RUN pip3 install 'poetry==1.0.9'
 ADD pyproject.toml poetry.lock /
 
 COPY soap_to_rest /soap_to_rest
-RUN chmod +x soap-to-rest/start.sh
+RUN chmod +x soap_to_rest/start.sh
 
 FROM base-python as test
 COPY ./tests /tests
