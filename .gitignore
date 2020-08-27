@@ -1,0 +1,4 @@
+*.pyc
+.vscode/*
+.pytest_cache/*
+soap_to_rest.egg-info/*
