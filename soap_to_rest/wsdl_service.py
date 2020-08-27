@@ -7,6 +7,8 @@ from suds.client import Client
 from suds.transport import TransportError
 from suds.wsse import Security, UsernameToken
 
+LOGGER = logging.getLogger(__name__)
+
 
 class WsdlError(Exception):
     """Simple wrapper for any errors occurring during web service invocation"""
@@ -50,7 +52,7 @@ def invoke_action(url, action, params, auth=None):
     except TypeError as type_error:
         _raise_wsdl_error(f"Error invoking action {action}, {type_error}")
     except Exception as ex:
-        logging.error(
+        LOGGER.error(
             f"Wsdl error occurred that we won't send to users: {type(ex)} {ex}"
         )
         _raise_wsdl_error(
@@ -59,5 +61,5 @@ def invoke_action(url, action, params, auth=None):
 
 
 def _raise_wsdl_error(message):
-    logging.warning(message)
+    LOGGER.warning(message)
     raise WsdlError(Exception(message))
