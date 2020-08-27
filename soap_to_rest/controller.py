@@ -4,14 +4,16 @@ import logging
 from quart import Quart, Response, jsonify, request
 from schema import Optional, Regex, Schema, SchemaError, Use
 
+from soap_to_rest.custom_validators import is_web_url
 from soap_to_rest.suds_converter import to_serializable
 from soap_to_rest.wsdl_service import WsdlError, invoke_action
 
-URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'.,<>?\xab\xbb\u201c\u201d\u2018\u2019]))"
+LOGGER = logging.getLogger(__name__)
+
 WSDL_PARAMS_SCHEMA = Schema(
     {
-        "url": Regex(
-            URL_REGEX, error="'url' must point to a valid URL that returns a WSDL"
+        "url": Use(
+            is_web_url, error="'url' must point to a valid URL that returns a WSDL"
         ),
         "action": str,
         Optional("params"): Use(dict, error="'params' must be an object"),
@@ -19,7 +21,6 @@ WSDL_PARAMS_SCHEMA = Schema(
     },
     name="WSDL Parameters",
 )
-
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -61,19 +62,19 @@ async def _validate_wsdl_params(wsdl_request):
 
 def _schema_error(error):
     message = error.code
-    logging.error(f"Failed to validate WSDL request parameters: {message}")
+    LOGGER.error(f"Failed to validate WSDL request parameters: {message}")
     return Response(message, status=400, mimetype="text/plain")
 
 
 def _wsdl_error(error):
     message = f"Failed to invoke WSDL: {error.wrapped}"
-    logging.error(message)
+    LOGGER.error(message)
     return Response(message, status=400, mimetype="text/plain")
 
 
 def _serialization_error(error):
     message = f"Failed to serialize SOAP response: {error}"
-    logging.error(message)
+    LOGGER.error(message)
     return Response(message, status=500, mimetype="text/plain")
 
 

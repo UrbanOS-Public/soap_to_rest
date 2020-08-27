@@ -1,19 +1,8 @@
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
 from threading import Thread
 from wsgiref.simple_server import make_server
 
-from spyne import (
-    Application,
-    ComplexModel,
-    Integer,
-    Iterable,
-    ServiceBase,
-    String,
-    Unicode,
-    rpc,
-)
+from spyne import (Application, ComplexModel, Integer, Iterable, ServiceBase,
+                   String, Unicode, rpc)
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 
