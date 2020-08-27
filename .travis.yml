@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.8"
+services:
+  - docker
+stages:
+  - build
+  - release
+jobs:
+  include:
+    - stage: build
+      name: build image
+      script: bash ./build.sh
+    - stage: release
+      name: release image
+      if: tag =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}$/
+      script: bash ./publish.sh
