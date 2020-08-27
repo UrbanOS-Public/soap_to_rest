@@ -101,6 +101,7 @@ params_to_test = [
         r"params.*object",
     ),
     ({"url": "not_a_url", "action": "do-it"}, 400, r"url.*valid.*wsdl"),
+    ({"url": "file:///etc/passwd", "action": "do-it"}, 400, r"url.*valid.*wsdl"),
     (
         {"url": "http://example.com?WSDL", "action": "do-it", "auth": {}},
         400,
