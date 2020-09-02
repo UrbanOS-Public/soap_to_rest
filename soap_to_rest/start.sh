@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 service nginx start
-(
-cd /
-su www-data -s /bin/bash -pc '
-hypercorn \
+gunicorn \
         --user $(id -u www-data) \
         --group $(id -g www-data) \
         --umask "0022" \
         --workers 1 \
-        --bind unix:/tmp/hypercorn.sock \
+        --bind unix:/tmp/uvicorn.sock \
         --error-logfile - \
-        --access-logfile - \
-        soap_to_rest.controller
-'
-)
+        -k uvicorn.workers.UvicornWorker \
+        soap_to_rest:app
