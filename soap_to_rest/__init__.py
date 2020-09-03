@@ -2,7 +2,6 @@
 import logging
 
 import uvicorn
-
 from fastapi import FastAPI, Response, status
 from fastapi.responses import JSONResponse
 
@@ -15,21 +14,18 @@ LOGGER = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.WARNING)
 
-app = FastAPI() 
+app = FastAPI()
 
 
-@app.post("/api/v1/wsdl")
-def wsdl(request: WsdlRequest, status_code=status.HTTP_200_OK):
+@app.post("/api/v1/wsdl", status_code=status.HTTP_200_OK)
+def wsdl(request: WsdlRequest):
     """
     Service endpoint for invoking an action on a
     web service defined by a WSDL
     """
     try:
         result = invoke_action(
-          request.url, 
-          request.action,
-          request.params,
-          request.auth
+            request.url, request.action, request.params, request.auth
         )
         serializable_result = to_serializable(result)
         return JSONResponse(content=serializable_result)
@@ -42,17 +38,23 @@ def wsdl(request: WsdlRequest, status_code=status.HTTP_200_OK):
 def _wsdl_error(error):
     message = f"Failed to invoke WSDL: {error.wrapped}"
     LOGGER.error(message)
-    return JSONResponse(content=_error_message(message), status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    return JSONResponse(
+        content=_error_message(message),
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    )
 
 
 def _serialization_error(error):
     message = f"Failed to serialize SOAP response: {error}"
     LOGGER.error(message)
-    return JSONResponse(content=_error_message(message), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return JSONResponse(
+        content=_error_message(message),
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
 
 
 def _error_message(message):
-  return {'msg': message}
+    return {"msg": message}
 
 
 if __name__ == "__main__":

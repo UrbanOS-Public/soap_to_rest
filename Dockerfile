@@ -18,7 +18,8 @@ RUN poetry export -f requirements.txt -o requirements.txt \
     && pip3 install --requirement requirements.txt
 
 COPY soap_to_rest /soap_to_rest
-RUN chmod +x soap_to_rest/start.sh
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 FROM base-python as test
 COPY ./tests /tests
@@ -31,6 +32,6 @@ FROM base-python as production
 
 COPY nginx.conf /etc/nginx
 
-WORKDIR /soap_to_rest
+WORKDIR /
 
 CMD ./start.sh
