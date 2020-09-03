@@ -5,7 +5,7 @@ import uvicorn
 from fastapi import FastAPI, Response, status
 from fastapi.responses import JSONResponse
 
-from soap_to_rest.models import WsdlRequest
+from soap_to_rest.models import WsdlRequest, ErrorMessage
 from soap_to_rest.suds_converter import to_serializable
 from soap_to_rest.wsdl_service import WsdlError, invoke_action
 
@@ -16,8 +16,16 @@ logging.basicConfig(level=logging.WARNING)
 
 app = FastAPI()
 
+error_responses = {
+  status.HTTP_500_INTERNAL_SERVER_ERROR: {
+    "model": ErrorMessage
+  },
+  status.HTTP_400_BAD_REQUEST: {
+    "model": ErrorMessage
+  },
+}
 
-@app.post("/api/v1/wsdl", status_code=status.HTTP_200_OK)
+@app.post("/api/v1/wsdl", status_code=status.HTTP_200_OK, responses=error_responses)
 def wsdl(request: WsdlRequest):
     """
     Service endpoint for invoking an action on a
@@ -40,7 +48,7 @@ def _wsdl_error(error):
     LOGGER.error(message)
     return JSONResponse(
         content=_error_message(message),
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_400_BAD_REQUEST,
     )
 
 

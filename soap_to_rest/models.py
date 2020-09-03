@@ -22,3 +22,10 @@ class WsdlRequest(BaseModel):
     action: str
     params: Optional[dict] = {}
     auth: Optional[AuthParams] = None
+
+
+class ErrorMessage(BaseModel):
+    """
+    An error message returned by the API for things other than validation errors
+    """
+    msg: str

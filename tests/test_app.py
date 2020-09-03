@@ -129,7 +129,7 @@ def test_wsdl_errors(when, fake_wsdl_server_url):
     data = {"url": fake_wsdl_server_url, "action": "neighborhoods", "params": {}}
     result = client.post("/api/v1/wsdl", json=data)
 
-    assert 422 == result.status_code
+    assert 400 == result.status_code
     body = result.json()
     assert re.search(r"failed.*wsdl", body["msg"], flags=re.IGNORECASE | re.MULTILINE)
 
