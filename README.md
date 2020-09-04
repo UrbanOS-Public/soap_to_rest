@@ -20,7 +20,7 @@ poetry run uvicorn soap_to_rest:app --host 127.0.0.1 --port 5000
 ```
 
 ### Calling the application
-The app takes a json body as either a POST.
+The app takes a json body as a POST request. In addition to this example, the app provides Swagger documentation if you navigate to `localhost:5000/docs` in your browser.
 
 ```bash
 curl --location --request POST 'localhost:5000/api/v1/wsdl' \
@@ -34,8 +34,6 @@ curl --location --request POST 'localhost:5000/api/v1/wsdl' \
     }
 }'
 ```
-
-The app also provides Swagger documentation if you navigate to `localhost:5000/docs` in your browser.
 
 #### Required params
 
