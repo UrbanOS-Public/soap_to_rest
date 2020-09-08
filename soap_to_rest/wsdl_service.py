@@ -23,7 +23,7 @@ def invoke_action(url, action, params, auth=None):
     try:
         if auth:
             security = Security()
-            token = UsernameToken(auth["username"], auth["password"])
+            token = UsernameToken(auth.username, auth.password)
             security.tokens.append(token)
             client = Client(url, wsse=security)
         else:

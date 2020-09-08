@@ -16,13 +16,11 @@ poetry install
 
 ### Running the application locally
 ```bash
-export QUART_APP=soap_to_rest.controller
-export QUART_DEBUG=true # if you want debug messages on slow calls, etc.
-poetry run quart run
+poetry run uvicorn soap_to_rest:app --host 127.0.0.1 --port 5000
 ```
 
 ### Calling the application
-The app takes a json body as either a POST or a GET.
+The app takes a json body as a POST request. In addition to this example, the app provides Swagger documentation if you navigate to `localhost:5000/docs` in your browser.
 
 ```bash
 curl --location --request POST 'localhost:5000/api/v1/wsdl' \
@@ -43,10 +41,11 @@ curl --location --request POST 'localhost:5000/api/v1/wsdl' \
     + The url to a wsdl file. This is used to dynamically build the client.
 + `action`
     + The action (or "operation") that should be called on the service.
-+ `params`
-    + Params that should be passed to the service. If no params are required for the action, an empty map should be passed.
 
 #### Optional params
+
++ `params`
+    + Params that should be passed to the service. If no params are required for the action, an empty map is used as the default.
 + `auth`
     + A map with two keys, `username` and `password`. Both keys are required if auth is passed.
     + The credentials provided here will be sent as a wsse header to the service. This is the only type of auth explicitly supported at the moment. If credentials are sent as part of the request body, they should be sent as part of `params`.
