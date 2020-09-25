@@ -2,8 +2,8 @@
 Converter that can take (usually) a suds object
 and turn it into a serializable dict, array, etc.
 """
+from datetime import datetime
 from itertools import starmap
-
 from suds.sudsobject import asdict as suds_as_dict
 
 
@@ -13,7 +13,7 @@ def to_serializable(value):
     into a serializable format (array, object, primordial value, etc.)
     """
     if _is_primordial(value):
-        return _list_wrap(value)
+        return _list_wrap(_convert_primordial(value))
 
     return _convert_to_serializable(value)
 
@@ -23,7 +23,7 @@ def _convert_to_serializable(value):
         return _convert_values(value)
 
     if not _is_suds_object(value):
-        return value
+        return _convert_primordial(value)
 
     suds_dict = suds_as_dict(value)
 
@@ -84,3 +84,10 @@ def _is_list(value):
 
 def _get_first_value_from_dict(suds_dict):
     return list(suds_dict.values())[0]
+
+
+def _convert_primordial(value):
+    if isinstance(value, datetime):
+      return str(value)
+
+    return value
