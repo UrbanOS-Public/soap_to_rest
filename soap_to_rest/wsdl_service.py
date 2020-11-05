@@ -25,9 +25,11 @@ def invoke_action(url, action, params, auth=None):
             security = Security()
             token = UsernameToken(auth.username, auth.password)
             security.tokens.append(token)
-            client = Client(url, wsse=security)
+            client = Client(url, wsse=security, headers={'Soapaction': action})
         else:
-            client = Client(url)
+            client = Client(url, headers={'Soapaction': action})
+
+        print(client.service)
 
         return getattr(client.service, action)(**params)
 
